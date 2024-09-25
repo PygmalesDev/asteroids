@@ -1,19 +1,27 @@
 import pygame
 from player import Player
+from asteroid import Asteroid
 from constants import *
+from asteroidfield import AsteroidField
 
-def main():
-    print("Starting asteroids!")
-    print(f"Screen width: {SCREEN_WIDTH}") 
-    print(f"Screen height: {SCREEN_HEIGHT}")
+updatable = pygame.sprite.Group()
+drawable = pygame.sprite.Group()
+asteroids = pygame.sprite.Group()
 
-    pygame.init()
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    
-    clock = pygame.time.Clock()
-    plr = Player(SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
-    dt = 0
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+clock = pygame.time.Clock()
+dt = 0.0
 
+def init_objects():
+    AsteroidField.containers = updatable
+    Asteroid.containers = (updatable, drawable, asteroids)
+    Player.containers = (updatable, drawable)
+
+    ast_field = AsteroidField()
+    plr = Player(SCREEN_WIDTH/2, SCREEN_HEIGHT/2) 
+
+def process_game():
+    global screen, clock, dt
 
     while True:
         for event in pygame.event.get():
@@ -21,11 +29,17 @@ def main():
                 return
 
         screen.fill((0, 0, 0))
-        plr.update(dt)
-        plr.draw(screen)
+        for obj in updatable: obj.update(dt)
+        for obj in drawable: obj.draw(screen)
 
         pygame.display.flip()
         dt = clock.tick(60)/1000
+
+def main():
+    pygame.init()
+    print("Starting asteroids!")  
+    init_objects()
+    process_game()
 
 
 if __name__ == "__main__":
